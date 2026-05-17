@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Importer & Exporter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Website Cache Data Manager</h2>
+    <p>Export your current local storage data or import a backup JSON file.</p>
+
+    <!-- Export Trigger -->
+    <button id="exportBtn">Export Cache Data</button>
+
+    <!-- Import Triggers -->
+    <button id="importBtn">Import Cache Data</button>
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
+
+    <script>
+        // --- EXPORTER logic ---
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            // 1. Gather all localStorage data
+            const cacheData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                cacheData[key] = localStorage.getItem(key);
+            }
+
+            // 2. Convert data to a JSON string
+            const dataStr = JSON.stringify(cacheData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+            // 3. Create a temporary link to trigger the download
+            const exportFileDefaultName = 'website_cache_backup.json';
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            
+            // 4. Trigger click and clean up
+            linkElement.click();
+            linkElement.remove();
+        });
+
+        // --- IMPORTER logic ---
+        const fileInput = document.getElementById('fileInput');
+
+        // Trigger the hidden file input when clicking the visible import button
+        document.getElementById('importBtn').addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle the file selection
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    // 1. Parse the uploaded JSON file
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // 2. Clear existing cache for a clean overwrite
+                    localStorage.clear();
+
+                    // 3. Save the imported data back to localStorage
+                    for (const key in importedData) {
+                        if (importedData.hasOwnProperty(key)) {
+                            localStorage.setItem(key, importedData[key]);
+                        }
+                    }
+
+                    alert('Cache data imported successfully! Refreshing page...');
+                    window.location.reload(); // Refresh to apply changes
+                    
+                } catch (error) {
+                    alert('Error: Invalid JSON file structure.');
+                    console.error(error);
+                }
+            };
+
+            // Read the file as plain text
+            reader.readAsText(file);
+            
+            // Reset file input value so the same file can be uploaded again if needed
+            fileInput.value = '';
+        });
+    </script>
+
+</body>
+</html>
