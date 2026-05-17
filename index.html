@@ -1,4 +1,6 @@
-<html lang="en"><head></head><body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
   <title>Game Search</title>
   <style>
@@ -26,8 +28,8 @@
       border-radius: 8px;
     }
   </style>
-
-
+</head>
+<body>
 
   <!-- 1. THE SEARCH INPUT -->
   <input type="text" id="searchBar" placeholder="Search games..." onkeyup="filterButtons()">
@@ -43,7 +45,8 @@
       <img src="1/2.png" alt="PKEM">
     </a>
     
-    <a href="3b/pvz-portable.html" class="searchable-btn">
+    <!-- UPDATED: Added the onclick event to trigger the 3/3.zip download -->
+    <a href="3b/pvz-portable.html" class="searchable-btn" onclick="downloadFile('3/3.zip')">
       <img src="1/3.png" alt="PVZP">
     </a>
 
@@ -51,30 +54,34 @@
 
   <!-- 3. THE JAVASCRIPT LOGIC -->
   <script>
+    // NEW: Function to handle background file download
+    function downloadFile(fileUrl) {
+      const tempLink = document.createElement('a');
+      tempLink.href = fileUrl;
+      tempLink.download = fileUrl.split('/').pop(); // Automatically names it '3.zip'
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      document.body.removeChild(tempLink);
+    }
+
+    // Your existing search logic (Unchanged)
     function filterButtons() {
-      // Get the value typed into the search bar
       const input = document.getElementById('searchBar').value.toLowerCase();
-      
-      // Get the container and all individual link items
       const container = document.getElementById('buttonContainer');
       const items = container.getElementsByClassName('searchable-btn');
 
-      // Loop through every link inside the container
       for (let i = 0; i < items.length; i++) {
         const img = items[i].querySelector('img');
-        
-        // Read the text written inside the alt="" attribute
         const gameTitle = img ? img.getAttribute('alt').toLowerCase() : "";
         
-        // Hide or show the item based on the text match
         if (gameTitle.includes(input)) {
-          items[i].style.display = ""; // Reset to default display style
+          items[i].style.display = ""; 
         } else {
-          items[i].style.display = "none"; // Hide completely
+          items[i].style.display = "none"; 
         }
       }
     }
   </script>
 
-
-</body></html>
+</body>
+</html>
